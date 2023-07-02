@@ -11,25 +11,34 @@
 //base class of all movable objects, including plyaers, bullets and player-created obstacles
 using namespace std;
 
-
+class Player;
 
 class Object: public QGraphicsPixmapItem
 {
 
 public:
     //~Object();
-    double radius; //for collide use
+    double radius;  //for circle
+    double x_size, y_size; // for rectangle
     double vx, vy, v;
     double v_max;
     int angle;
-    Object(int x, int y, int r, int vmx, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
+    int id;
+    bool is_circle; //1: circular; 0: rectangular
+    Object(int x, int y, double r, int vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
+    Object(int x, int y, double sx, double sy, int vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
     QGraphicsScene *scene;
 
     void change_velocity(double d);
     void change_angle(int d);
 
-    virtual void object_update();
+    virtual void object_update(const QVector<Object*> & exo);
     virtual QPoint get_centre();
+    virtual void player_collide(Player &target);
+
+    bool operator==(const Object &other);
+    bool operator!=(const Object &other);
+    operator int();
 
     friend class Game;
 private:

@@ -25,15 +25,12 @@ set(PROJECT_SOURCES
         config.h
         object.h
         object.cpp
-<<<<<<< HEAD
         bullet.h
         bullet.cpp
         player.h
         player.cpp
-=======
         dialog.h
         dialog.cpp
->>>>>>> aafef4bed2366b4f6b314dc199cc99c9276c6451
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

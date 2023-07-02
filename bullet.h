@@ -7,8 +7,11 @@
 
 class Bullet//: public Object
 {
+    int damage;
 public:
     Bullet();
+    Player *parent;
+
 };
 
 #endif // BULLET_H

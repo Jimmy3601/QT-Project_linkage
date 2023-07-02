@@ -15,13 +15,10 @@
 #include <QDebug>
 //#include <QMediaPlayer>
 #include <QMainWindow>
-<<<<<<< HEAD
-//#include <QMediaPlaylist>
-=======
+//#include <QMediaPlaylist
 #include <QDockWidget>
 #include "dialog.h"
 #include <QPainter>
->>>>>>> aafef4bed2366b4f6b314dc199cc99c9276c6451
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

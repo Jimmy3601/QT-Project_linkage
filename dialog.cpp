@@ -10,7 +10,7 @@ Dialog::Dialog(QWidget *parent) :
     ui->setupUi(this);
 
     setWindowIcon(QIcon(":/menu/res/qygh.png"));
-    setFixedSize(MAX_SCRREN_LENGTH,MAX_SCREEN_WIDTH);
+    setFixedSize(MAX_SCREEN_WIDTH,MAX_SCREEN_HEIGHT);
     setWindowTitle("游戏介绍");
 
 
