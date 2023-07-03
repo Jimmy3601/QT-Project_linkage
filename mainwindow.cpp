@@ -91,8 +91,8 @@ void MainWindow::on_Start_game_clicked()
 
     v->setGeometry(0,0 , 1000 , 800);
     v->setFixedSize(1000,800);
-    v->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff) ;
-    v->setVerticalScrollBarPolicy ( Qt::ScrollBarAlwaysOff ) ;
+    v->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    v->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOff);
     //test = test.scaled(100,100);
     v->show();
     game_scene->game_start();
