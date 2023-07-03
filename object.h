@@ -12,6 +12,7 @@
 using namespace std;
 
 class Player;
+class Bullet;
 
 class Object: public QGraphicsPixmapItem
 {
@@ -25,16 +26,17 @@ public:
     int angle;
     int id;
     bool is_circle; //1: circular; 0: rectangular
-    Object(int x, int y, double r, int vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
+    bool is_deleted;
+    Object(int x, int y, double r, double vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
     Object(int x, int y, double sx, double sy, int vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_ = 0, int angle_=0);
     QGraphicsScene *scene;
 
     void change_velocity(double d);
     void change_angle(int d);
 
-    virtual void object_update(const QVector<Object*> & exo);
+    virtual void object_update(QList<Object*> & exo);
     virtual QPoint get_centre();
-    virtual void player_collide(Player &target);
+    virtual void player_collide(Player *target);
 
     bool operator==(const Object &other);
     bool operator!=(const Object &other);
