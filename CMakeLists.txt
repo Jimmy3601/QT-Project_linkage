@@ -31,6 +31,8 @@ set(PROJECT_SOURCES
         player.cpp
         dialog.h
         dialog.cpp
+        prop.h
+        prop.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
