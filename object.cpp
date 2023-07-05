@@ -2,15 +2,16 @@
 #include "object.h"
 
 Object::Object(int x, int y, double r, double vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_, int angle_)
-    :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*r, 2*r))), v_max(vmx), v(v_), angle(angle_), radius(r), x_size(0), y_size(0), id(id_), is_circle(1), is_deleted(0){
+    :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*r, 2*r))), v_max(vmx), v(v_), angle(angle_), radius(r), x_size(0), y_size(0), id(id_), is_circle(1), is_deleted(0), angular_velocity(5){
     setPos(x-r, y-r); // setPos uses the coordinate of the top-left corner of the object
+    setTransformOriginPoint(r,r);
     scene = scene_;
     scene->addItem(this);
 }
 
 
 Object::Object(int x, int y, double sx, double sy, int vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_, int angle_)
-    :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*sx, 2*sy))), v_max(vmx), v(v_), angle(angle_), radius(0), x_size(sx), y_size(sy), is_circle(0), id(id_), is_deleted(0){
+    :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*sx, 2*sy))), v_max(vmx), v(v_), angle(angle_), radius(0), x_size(sx), y_size(sy), is_circle(0), id(id_), is_deleted(0),angular_velocity(5){
     setPos(x-sx, y-sy); // setPos uses the coordinate of the top-left corner of the object
     scene = scene_;
     scene->addItem(this);

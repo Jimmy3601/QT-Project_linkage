@@ -23,7 +23,7 @@ public:
     double x_size, y_size; // for rectangle
     double vx, vy, v;
     double v_max;
-    int angle;
+    int angle, angular_velocity;
     int id;
     bool is_circle; //1: circular; 0: rectangular
     bool is_deleted;
