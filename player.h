@@ -13,22 +13,18 @@ public:
     //~Player();
     int health, health_max;
     int shoot_interval; // in ms
-    bool is_hurt;
-    int buff, buff_duration; //in ms
-    /*buff list(id)
-     * 0: none
-     * 1: gain 100%/400% extra movement speed
-     * 2: gain 100%/400% extra bullet speed
-     * 3: gain 100%/400% extra rotation speed
-     * 4: bullet deal 100%/300% extra damage
-     * 5: shoot interval beecome 0.5/0.2 s
-     * instant effect: heal 1/5 health
-     * */
+    int bullet_vmax, bullet_damage;
+    bool is_hurt, is_buff_rare;
+    int buff_id, buff_duration, skill_duration; //in ms
+
 
     virtual void shoot();
     virtual void object_update(QList<Object*> & exo);
     virtual void on_hurt(int damage);
     virtual void use_skill();
+
+    void grant_buff(int _id, bool is_rare);
+    void remove_buff();
 };
 
 class Eecs{
