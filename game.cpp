@@ -5,6 +5,8 @@
 #include "config.h"
 #include "player.h"
 #include "bullet.h"
+#include "prop.h"
+#include <cmath>
 
 //main part of the game
 /*NOTES:
@@ -18,6 +20,7 @@
 //QString IMG_SRC = ;
 QPixmap *player_1_pixmap, *player_2_pixmap;
 const double deceleration = 0.1;
+const int generate_prop_rate = 15000;
 
 Game::Game(): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1)
 {
@@ -78,31 +81,35 @@ void Game::game_start() {
     player2 = new Player(3*MAX_SCREEN_WIDTH/4,MAX_SCREEN_HEIGHT/2,50, id_cnt++, player_2_pixmap,this,180);
     existing_objects.append(player1);
     existing_objects.append(player2);
-    qDebug() << existing_objects.size();
+
     timer = new QTimer;
     connect(timer,&QTimer::timeout,this, &Game::game_update);
     timer->start(20);
-    player1->setTransformOriginPoint(50, 50);
-    player2->setTransformOriginPoint(50, 50);
+
+    prop_timer = new QTimer;
+    connect(prop_timer,&QTimer::timeout,this, &Game::try_generate_prop);
+    prop_timer->start(generate_prop_rate);
 
 
 }
 
 void Game::game_update() {
+    //key responding
+
     if (isPressingW) player1->change_velocity(1);
-    if (isPressingA) player1->change_angle(5);
+    if (isPressingA) player1->change_angle(player1->angular_velocity);
     if (isPressingS) player1->change_velocity(-1);
-    if (isPressingD) player1->change_angle(-5);
+    if (isPressingD) player1->change_angle(-player1->angular_velocity);
     if (isPressingUp) player2->change_velocity(1);
-    if (isPressingLeft) player2->change_angle(5);
+    if (isPressingLeft) player2->change_angle(player2->angular_velocity);
     if (isPressingDown) player2->change_velocity(-1);
-    if (isPressingRight) player2->change_angle(-5);
+    if (isPressingRight) player2->change_angle(-player2->angular_velocity);
 
     if (isPressingE && player1_can_shoot) {
         qDebug() << "Shooot!";
         qreal dx = (player1->radius+12)*cos(player1->angle*3.1415/180), dy = -(player1->radius+12)*sin(player1->angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
         qreal nx = player1->get_centre().rx() + dx, ny = player1->get_centre().ry() + dy;
-        existing_objects.append(new Bullet(nx, ny, 10, id_cnt++, player_1_pixmap, this, 12, player1->angle, 1, player1));
+        existing_objects.append(new Bullet(nx, ny, 10, id_cnt++, player_1_pixmap, this, player1->bullet_vmax, player1->angle, player1->bullet_damage, player1));
         //qDebug() << existing_objects[id_cnt-1]->get_centre();
 
         player1_can_shoot = 0;
@@ -116,7 +123,7 @@ void Game::game_update() {
         qreal dx = (player2->radius+12)*cos(player2->angle*3.1415/180), dy = -(player2->radius+12)*sin(player2->angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
         qreal nx = player2->get_centre().rx() + dx, ny = player2->get_centre().ry() + dy;
 
-        existing_objects.append(new Bullet(nx, ny, 10, id_cnt++, player_2_pixmap, this, 12, player2->angle, 1, player2));
+        existing_objects.append(new Bullet(nx, ny, 10, id_cnt++, player_2_pixmap, this, player2->bullet_vmax, player2->angle, player2->bullet_damage, player2));
         player2_can_shoot = 0;
 
         timer_p2 = new QTimer;
@@ -147,6 +154,12 @@ void Game::game_update() {
          connect(re_p2,&QTimer::timeout,this, &Game::recover_opacity_p2);
          re_p2->start(150);
     }
+
+    if (player1->buff_duration > 0) player1->buff_duration -=  20;
+    else player1->remove_buff();
+
+    if (player2->buff_duration > 0) player2->buff_duration -=  20;
+    else player2->remove_buff();
 
 
     //update qvector
@@ -193,5 +206,20 @@ void Game::recover_opacity_p1() {
 void Game::recover_opacity_p2() {
     player2->setOpacity(1.0);
     re_p2->stop();
+}
+
+void Game::try_generate_prop() {
+    int x = 30 + ceil(rand()%940);
+    int y = 30 + ceil(rand()%740);
+    if (existing_objects.size() < 5 && abs(player1->get_centre().rx()- x) > 100 && abs(player1->get_centre().ry()- y) > 90 && abs(player2->get_centre().rx()- x) > 100 && abs(player2->get_centre().ry()- y) > 90) {
+         existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 0));
+         qDebug() << x << ' ' <<y << "Prop generation succeed";
+         update();
+    }
+
+}
+
+void Game::try_trigger_event() {
+
 }
 

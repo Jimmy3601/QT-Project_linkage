@@ -40,10 +40,12 @@ public slots:
     void on_timer_p2();
     void recover_opacity_p1();
     void recover_opacity_p2();
+    void try_generate_prop();
+    void try_trigger_event();
 
 private:
     //clock/time
-    QTimer *timer, *timer_p1, *timer_p2, *re_p1, *re_p2;
+    QTimer *timer, *timer_p1, *timer_p2, *re_p1, *re_p2, *prop_timer, *event_timer;
     int T;
     long long global_time;
 
