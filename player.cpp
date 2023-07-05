@@ -3,10 +3,13 @@
 #include <QTimer>
 
 const int SPACING = 20; //cuz the image files contain some empty space
+const int MAX_SKILL_USE_DURATION = 8000;
+const int MAX_SKILL_COOLDOWN_DURATION = 15000;
 
-Player::Player(int x, int y, int r,int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, int initial_angle):
-    Object(x,y,r,3, id_, pixmap_, scene_, 0, initial_angle), health(10), health_max(10), is_hurt(0), buff_id(0),
-    buff_duration(0), shoot_interval(1000), bullet_vmax(12), bullet_damage(1), is_buff_rare(0)
+
+Player::Player(int x, int y, int r,int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, int initial_angle, int _f):
+    Object(x,y,r,3, id_, pixmap_, scene_, 0, initial_angle), health(10), health_max(10), is_hurt(0), buff_id(0), faculty(_f),
+    buff_duration(0), shoot_interval(1000), bullet_vmax(12), bullet_damage(1), bullet_radius(10), is_buff_rare(0), is_using_skill(0), skill_duration(0)
 {
 
 }
@@ -51,10 +54,6 @@ void Player::on_hurt(int damage) {
     }
 }
 
-void Player::use_skill() {
-
-}
-
 void Player::grant_buff(int _id, bool _is_rare) {
 
     remove_buff();
@@ -96,4 +95,72 @@ void Player::remove_buff() {
     buff_id = 0, buff_duration = 0, is_buff_rare = 0;
 }
 
+void Player::use_skill() {
+    is_using_skill = 1;
+    skill_duration = MAX_SKILL_USE_DURATION;
+}
 
+void Player::skill_expired() {
+    is_using_skill = 0;
+    skill_duration = MAX_SKILL_USE_DURATION;
+}
+
+Eecs::Eecs(int x, int y, int r, int id_,const QPixmap *pixmap, QGraphicsScene *scene_, int initial_angle):Player(x, y, r, id_,pixmap, scene_,initial_angle, 0) {};
+void Eecs::use_skill() {
+    is_using_skill = 1;
+    skill_duration = MAX_SKILL_USE_DURATION;
+    setOpacity(0.5);
+}
+void Eecs::skill_expired() {
+    is_using_skill = 0;
+    skill_duration = MAX_SKILL_COOLDOWN_DURATION;
+    setOpacity(1.0);
+}
+
+void Eecs::on_hurt(int damage) {
+    int rn = 0;
+    if (is_using_skill) rn = rand() % 100;
+    if (rn < 20) {
+        health -= (is_using_skill) ? 1 : damage;
+        setOpacity(0.2);
+        is_hurt = 1;
+        qDebug() << health;
+        if (health <= 0) {
+            qDebug() << "player"<<id+1<< "died!";
+            is_deleted = 1;
+        }
+    }
+}
+
+
+Guanghua::Guanghua(int x, int y, int r, int id_,const QPixmap *pixmap, QGraphicsScene *scene_, int initial_angle):Player(x, y, r, id_,pixmap, scene_,initial_angle, 1){};
+void Guanghua::use_skill() {
+    is_using_skill = 1;
+    skill_duration = MAX_SKILL_USE_DURATION;
+    bullet_radius *= 2;
+    bullet_damage *= 2;
+}
+void Guanghua::skill_expired() {
+    is_using_skill = 0;
+    skill_duration = MAX_SKILL_COOLDOWN_DURATION;
+    bullet_radius /= 2;
+    bullet_damage /= 2;
+}
+
+Yuanpei::Yuanpei(int x, int y, int r, int id_,const QPixmap *pixmap, QGraphicsScene *scene_, int initial_angle):Player(x, y, r, id_, pixmap, scene_,initial_angle, 2) {};
+
+
+Xinya::Xinya(int x, int y, int r, int id_,const QPixmap *pixmap, QGraphicsScene *scene_, int initial_angle):Player(x, y, r, id_, pixmap, scene_,initial_angle, 3) {};
+void Xinya::use_skill() {
+    is_using_skill = 1;
+    skill_duration = MAX_SKILL_USE_DURATION;
+    shoot_interval /= 2;
+    v_max *= 2;
+}
+
+void Xinya::skill_expired() {
+    is_using_skill = 0;
+    skill_duration = MAX_SKILL_COOLDOWN_DURATION;
+    shoot_interval *= 2;
+    v_max /= 2;
+}

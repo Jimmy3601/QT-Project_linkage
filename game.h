@@ -56,8 +56,8 @@ private:
     bool player1_can_shoot, player2_can_shoot;
     int id_cnt;
 
-    bool isPressingW,isPressingA,isPressingS,isPressingD, isPressingE;
-    bool isPressingUp,isPressingDown,isPressingLeft,isPressingRight, isPressingO;
+    bool isPressingW,isPressingA,isPressingS,isPressingD, isPressingE, isPressingQ;
+    bool isPressingUp,isPressingDown,isPressingLeft,isPressingRight, isPressingO, isPressingP;
 
     //void add_plyaers();
 
