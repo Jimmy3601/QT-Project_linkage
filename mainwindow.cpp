@@ -96,4 +96,5 @@ void MainWindow::on_Start_game_clicked()
     //test = test.scaled(100,100);
     v->show();
     game_scene->game_start();
+    //v->hide();
 }

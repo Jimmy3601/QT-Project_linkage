@@ -5,6 +5,7 @@
 const int SPACING = 20; //cuz the image files contain some empty space
 const int MAX_SKILL_USE_DURATION = 8000;
 const int MAX_SKILL_COOLDOWN_DURATION = 15000;
+const double PIX_MULTIPLIER = 0.9;
 
 
 Player::Player(int x, int y, int r,int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, int initial_angle, int _f):
@@ -37,7 +38,7 @@ void Player::object_update(QList<Object*> & exo) {
         }
 
     }
-    if (nx>= radius && ny >= radius && nx <= 1000-radius && ny <= 800 - radius && !collision) //check if inside range
+    if (nx>= PIX_MULTIPLIER*radius && ny >= 130+PIX_MULTIPLIER*radius && nx <= 1000-PIX_MULTIPLIER*radius && ny <= 800 - PIX_MULTIPLIER*radius && !collision) //check if inside range
         moveBy(dx, dy);
     this->setRotation((450-angle)%360);
     update();
@@ -49,6 +50,7 @@ void Player::on_hurt(int damage) {
     is_hurt = 1;
     qDebug() << health;
     if (health <= 0) {
+        health = 0;
         qDebug() << "player"<<id+1<< "died!";
         is_deleted = 1;
     }
@@ -67,7 +69,7 @@ void Player::grant_buff(int _id, bool _is_rare) {
      * 3: gain 100%/400% extra rotation speed
      * 4: bullet deal 100%/300% extra damage
      * 5: shoot interval beecome 0.4/0.1 s
-     * 6: sneaking: has 50%/80% chances
+     * 6: 0.5/0.2 scale
      * 7: instant effect: heal 1/4 health
      * */
     qDebug() << "Buff! id:" << _id;
@@ -77,7 +79,7 @@ void Player::grant_buff(int _id, bool _is_rare) {
     case 3: angular_velocity *= multiplier; break;
     case 4: bullet_damage *= multiplier; break;
     case 5: (shoot_interval *= (6-multiplier)) /= 10; break;
-    case 6: setScale(1.0/multiplier); break;
+    case 6: setScale(1.0/multiplier); radius/=multiplier; break;
     case 7: buff_id = 0, buff_duration = 0, is_buff_rare = 0, health = max(health-1+multiplier, health_max); break;
     }
 }
@@ -90,7 +92,7 @@ void Player::remove_buff() {
     case 3: angular_velocity /= multiplier; break;
     case 4: bullet_damage /= multiplier; break;
     case 5: (shoot_interval /= (6-multiplier)) *= 10; break;
-    case 6: setScale(1.0); break;
+    case 6: setScale(1.0); radius *= multiplier;  break;
     }
     buff_id = 0, buff_duration = 0, is_buff_rare = 0;
 }
@@ -126,6 +128,7 @@ void Eecs::on_hurt(int damage) {
         is_hurt = 1;
         qDebug() << health;
         if (health <= 0) {
+            health = 0; //added for ensuring health bar displaying correct
             qDebug() << "player"<<id+1<< "died!";
             is_deleted = 1;
         }

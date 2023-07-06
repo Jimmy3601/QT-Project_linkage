@@ -29,6 +29,7 @@ public:
     friend class Bullet;
 
     Game();
+
     //~Game();
 
     void keyPressEvent(QKeyEvent *event);
@@ -44,6 +45,7 @@ public slots:
     void try_trigger_event();
 
 private:
+    QGraphicsRectItem *currentHealthBar, *currentHealthBar2;
     //clock/time
     QTimer *timer, *timer_p1, *timer_p2, *re_p1, *re_p2, *prop_timer, *event_timer;
     int T;

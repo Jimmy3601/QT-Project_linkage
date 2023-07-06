@@ -22,6 +22,14 @@ QPixmap *player_1_pixmap, *player_2_pixmap;
 
 const double deceleration = 0.1;
 const int generate_prop_rate = 12000;
+const int wallThickness = 10;
+const int wallLength = 150;
+
+struct Rect{
+    int x, y; //top-left corner
+    bool is_horizontal;
+    Rect(int _x, int _y, bool _h): x(_x), y(_y), is_horizontal(_h){};
+};
 
 
 Game::Game(): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1)
@@ -128,19 +136,28 @@ void Game::game_start() {
     this->addItem(item4);
 
 
-    int wallThickness = 10;
-    int wallLength = 150;
+
     //130 for status and tips
     QGraphicsRectItem *Wall1 = addRect(150, 250, wallLength, wallThickness);
     QGraphicsRectItem *Wall2 = addRect(150, 250, wallThickness, wallLength);
-    qDebug() << Wall2->pos();
-    QGraphicsRectItem *Wall5 = addRect(150, 680-wallThickness,wallLength ,wallThickness );
-    QGraphicsRectItem *Wall6 = addRect(150, 680-wallLength, wallThickness, wallLength);
-    QGraphicsRectItem *Wall3 = addRect(850-wallLength, 250,wallLength ,wallThickness );
-    QGraphicsRectItem *Wall4 = addRect(850-wallThickness,250, wallThickness, wallLength);
+    QGraphicsRectItem *Wall3 = addRect(150, 680-wallThickness,wallLength ,wallThickness );
+    QGraphicsRectItem *Wall4 = addRect(150, 680-wallLength, wallThickness, wallLength);
+    QGraphicsRectItem *Wall5 = addRect(850-wallLength, 250,wallLength ,wallThickness );
+    QGraphicsRectItem *Wall6 = addRect(850-wallThickness,250, wallThickness, wallLength);
     QGraphicsRectItem *Wall7 = addRect(850-wallLength, 680-wallThickness, wallLength, wallThickness);
     QGraphicsRectItem *Wall8 = addRect(850-wallThickness,680-wallLength, wallThickness,wallLength );
     QGraphicsRectItem *Wall9 = addRect(500-wallThickness/2, 390, wallThickness, wallLength);
+    Rect *dat[9];
+    dat[0] = new Rect(150, 250, 1);
+    dat[1] = new Rect(150, 250, 0);
+    dat[2] = new Rect(150, 680-wallThickness, 1);
+    dat[3] = new Rect(150, 680-wallThickness, 0);
+    dat[4] = new Rect(850-wallLength, 250, 1);
+    dat[5] = new Rect(850-wallThickness, 250, 0);
+    dat[6] = new Rect(850-wallLength, 680-wallThickness, 1);
+    dat[8]
+    
+    
 
     //QGraphicsRectItem *Wall10 = scene->addRect(110, 38, wallLength, wallThickness);
 

@@ -1,5 +1,6 @@
 
 #include "object.h"
+const double PIX_MULTIPLIER = 0.9;
 
 Object::Object(int x, int y, double r, double vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_, int angle_)
     :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*r, 2*r))), v_max(vmx), v(v_), angle(angle_), radius(r), x_size(0), y_size(0), id(id_), is_circle(1), is_deleted(0), angular_velocity(5){
@@ -31,7 +32,7 @@ void Object::change_angle(int d) {
 void Object::object_update(QList<Object*> & exo) {
     qreal dx = v*cos(angle*3.1415/180), dy = -v*sin(angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
     qreal nx = get_centre().rx() + dx, ny = get_centre().ry() + dy;
-    if (nx>= radius && ny >= radius && nx <= 1000-radius && ny <= 800 - radius) //check if inside range
+    if (nx>= PIX_MULTIPLIER*radius && ny >= 130+PIX_MULTIPLIER*radius && nx <= 1000-PIX_MULTIPLIER*radius && ny <= 800 - PIX_MULTIPLIER*radius) //check if inside range
         moveBy(dx, dy);
     this->setRotation((450-angle)%360);
     update();
