@@ -5,11 +5,10 @@
 const int SPACING = 20; //cuz the image files contain some empty space
 const int MAX_SKILL_USE_DURATION = 8000;
 const int MAX_SKILL_COOLDOWN_DURATION = 15000;
-const double PIX_MULTIPLIER = 0.9;
 
 
 Player::Player(int x, int y, int r,int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, int initial_angle, int _f):
-    Object(x,y,r,3, id_, pixmap_, scene_, 0, initial_angle), health(10), health_max(10), is_hurt(0), buff_id(0), faculty(_f),
+    Object(x,y,r,3, id_, pixmap_, scene_, 0, initial_angle), health(10), health_max(10), is_hurt(0), buff_id(0), faculty(_f), tp_interval(1000),
     buff_duration(0), shoot_interval(1000), bullet_vmax(12), bullet_damage(1), bullet_radius(10), is_buff_rare(0), is_using_skill(0), skill_duration(0)
 {
 
@@ -18,7 +17,7 @@ Player::Player(int x, int y, int r,int id_, const QPixmap *pixmap_, QGraphicsSce
 void Player::shoot() {
 
 }
-void Player::object_update(QList<Object*> & exo) {
+void Player::object_update(QList<Object*> & exo, Rect** rect) {
     bool collision = 0;
     int si = exo.size();
     qreal dx = v*cos(angle*3.1415/180), dy = -v*sin(angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
@@ -38,7 +37,9 @@ void Player::object_update(QList<Object*> & exo) {
         }
 
     }
-    if (nx>= PIX_MULTIPLIER*radius && ny >= 130+PIX_MULTIPLIER*radius && nx <= 1000-PIX_MULTIPLIER*radius && ny <= 800 - PIX_MULTIPLIER*radius && !collision) //check if inside range
+    if (nx<= PIX_MULTIPLIER*radius || nx >= 1000-PIX_MULTIPLIER*radius) dx = 0;
+    if (ny <= 130+PIX_MULTIPLIER*radius || ny >= 800 - PIX_MULTIPLIER*radius) dy = 0;
+    if (!collision && !judge_wall_collision(nx, ny, PIX_MULTIPLIER*radius, rect)) //check if inside range
         moveBy(dx, dy);
     this->setRotation((450-angle)%360);
     update();
@@ -69,18 +70,17 @@ void Player::grant_buff(int _id, bool _is_rare) {
      * 3: gain 100%/400% extra rotation speed
      * 4: bullet deal 100%/300% extra damage
      * 5: shoot interval beecome 0.4/0.1 s
-     * 6: 0.5/0.2 scale
+     * 6: tp
      * 7: instant effect: heal 1/4 health
      * */
-    qDebug() << "Buff! id:" << _id;
     switch(buff_id) {
     case 1: v_max = v_max / 3 * (3+multiplier); break;
     case 2: bullet_vmax *= multiplier; break;
     case 3: angular_velocity *= multiplier; break;
     case 4: bullet_damage *= multiplier; break;
     case 5: (shoot_interval *= (6-multiplier)) /= 10; break;
-    case 6: setScale(1.0/multiplier); radius/=multiplier; break;
-    case 7: buff_id = 0, buff_duration = 0, is_buff_rare = 0, health = max(health-1+multiplier, health_max); break;
+    case 6: if (is_buff_rare) tp_interval = 200; break;
+    case 7: buff_id = 0, buff_duration = 0, is_buff_rare = 0, health = min(health-1+multiplier, health_max); break;
     }
 }
 
@@ -92,7 +92,7 @@ void Player::remove_buff() {
     case 3: angular_velocity /= multiplier; break;
     case 4: bullet_damage /= multiplier; break;
     case 5: (shoot_interval /= (6-multiplier)) *= 10; break;
-    case 6: setScale(1.0); radius *= multiplier;  break;
+    case 6: tp_interval = 1000; break;
     }
     buff_id = 0, buff_duration = 0, is_buff_rare = 0;
 }
@@ -104,7 +104,7 @@ void Player::use_skill() {
 
 void Player::skill_expired() {
     is_using_skill = 0;
-    skill_duration = MAX_SKILL_USE_DURATION;
+    skill_duration = MAX_SKILL_COOLDOWN_DURATION;
 }
 
 Eecs::Eecs(int x, int y, int r, int id_,const QPixmap *pixmap, QGraphicsScene *scene_, int initial_angle):Player(x, y, r, id_,pixmap, scene_,initial_angle, 0) {};
@@ -124,7 +124,7 @@ void Eecs::on_hurt(int damage) {
     if (is_using_skill) rn = rand() % 100;
     if (rn < 20) {
         health -= (is_using_skill) ? 1 : damage;
-        setOpacity(0.2);
+        setOpacity(0.5);
         is_hurt = 1;
         qDebug() << health;
         if (health <= 0) {

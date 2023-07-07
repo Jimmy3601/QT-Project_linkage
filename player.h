@@ -12,7 +12,7 @@ public:
     Player(int x, int y, int r, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, int initial_angle, int _f);
     //~Player();
     int health, health_max;
-    int shoot_interval; // in ms
+    int shoot_interval, tp_interval; // in ms
     int bullet_vmax, bullet_damage, bullet_radius;
     bool is_hurt, is_buff_rare, is_using_skill;
     int buff_id, buff_duration, skill_duration; //skill_duration for both during-skill and cooldown use
@@ -20,7 +20,7 @@ public:
 
 
     virtual void shoot();
-    virtual void object_update(QList<Object*> & exo);
+    virtual void object_update(QList<Object*> & exo, Rect** rect);
     virtual void on_hurt(int damage);
     virtual void use_skill();
     virtual void skill_expired();

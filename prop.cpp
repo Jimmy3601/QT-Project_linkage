@@ -8,7 +8,7 @@ Prop::Prop(int x, int y, double r, int id_, const QPixmap *pixmap_, QGraphicsSce
 
 void Prop::player_collide(Player *target) {
     int i = 1 + rand() % 7;
-    target->grant_buff(i, 1);
+    target->grant_buff(i, is_rare);
     is_deleted = 1;
 }
 
