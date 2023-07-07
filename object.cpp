@@ -1,6 +1,36 @@
 
 #include "object.h"
-const double PIX_MULTIPLIER = 0.9;
+
+bool judge_wall_collision(int x, int y, int r, Rect** rect) {
+    bool ans = 0;
+    for (int i = 0; i != 9; ++i) {
+        Rect *p = *(rect+i);
+        double x1 = p->x, y1 = p->y;
+        double w =  (p->is_horizontal) ? wallLength: wallThickness, h = (p->is_horizontal) ? wallThickness: wallLength;
+        double x2 = p->x + w, y2 = y1, x3 = x1, y3 = y1 + h, x4 = x2, y4 = y3;
+        if (x >= x1 && x <= x2 && y>=y1-r && y<=y3+r) {
+            ans = 1; break;
+        }
+        else if (y >= y1 && y<= y3 && x>=x1-r && x<=x2+r) {
+            ans = 1; break;
+        }
+        else if (r >= sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y))) {
+            ans = 1; break;
+        }
+        else if (r >= sqrt((x2-x)*(x2-x)+(y2-y)*(y2-y))) {
+            ans = 1; break;
+        }
+        else if (r >= sqrt((x3-x)*(x3-x)+(y3-y)*(y3-y))) {
+            ans = 1; break;
+        }
+        else if (r >= sqrt((x4-x)*(x4-x)+(y4-y)*(y4-y))) {
+            ans = 1; break;
+        }
+    }
+
+    return ans;
+};
+
 
 Object::Object(int x, int y, double r, double vmx, int id_, const QPixmap *pixmap_, QGraphicsScene *scene_, double v_, int angle_)
     :QGraphicsPixmapItem(pixmap_->scaled(QSize(2*r, 2*r))), v_max(vmx), v(v_), angle(angle_), radius(r), x_size(0), y_size(0), id(id_), is_circle(1), is_deleted(0), angular_velocity(5){
@@ -29,7 +59,7 @@ void Object::change_angle(int d) {
     angle = (360 + angle + d) % 360;
 }
 
-void Object::object_update(QList<Object*> & exo) {
+void Object::object_update(QList<Object*> & exo, Rect **rect) {
     qreal dx = v*cos(angle*3.1415/180), dy = -v*sin(angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
     qreal nx = get_centre().rx() + dx, ny = get_centre().ry() + dy;
     if (nx>= PIX_MULTIPLIER*radius && ny >= 130+PIX_MULTIPLIER*radius && nx <= 1000-PIX_MULTIPLIER*radius && ny <= 800 - PIX_MULTIPLIER*radius) //check if inside range

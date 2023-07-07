@@ -11,6 +11,19 @@
 //base class of all movable objects, including plyaers, bullets and player-created obstacles
 using namespace std;
 
+const int wallThickness = 10;
+const int wallLength = 150;
+const double PIX_MULTIPLIER = 0.8;
+
+struct Rect{
+    int x, y; //top-left corner
+    bool is_horizontal;
+    Rect(int _x, int _y, bool _h): x(_x), y(_y), is_horizontal(_h){};
+};
+
+
+bool judge_wall_collision(int x, int y, int r, Rect** rect);
+
 class Player;
 class Bullet;
 
@@ -34,7 +47,7 @@ public:
     void change_velocity(double d);
     void change_angle(int d);
 
-    virtual void object_update(QList<Object*> & exo);
+    virtual void object_update(QList<Object*> & exo, Rect** rect);
     virtual QPoint get_centre();
     virtual void player_collide(Player *target);
 
