@@ -14,7 +14,7 @@ public:
     Player *parent;
 
 
-    virtual void object_update(QList<Object*> & exo);
+    virtual void object_update(QList<Object*> & exo, Rect** rect);
     virtual void player_collide(Player *target);
 };
 

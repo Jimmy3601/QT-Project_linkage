@@ -9,10 +9,10 @@ Bullet::~Bullet(){
 
 }
 
-void Bullet::object_update(QVector<Object*> & exo) {
+void Bullet::object_update(QVector<Object*> & exo, Rect** rect) {
     qreal dx = v*cos(angle*3.1415/180), dy = -v*sin(angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
     qreal nx = pos().rx() + dx, ny = pos().ry() + dy;
-    if (nx>= 0 && ny >= 0 && nx <= 1000-2*radius && ny <= 800 - 2* radius) {//check if inside range
+    if (nx>= 0 && ny >= 130 && nx <= 1000-2*radius && ny <= 800 - 2* radius && !judge_wall_collision(nx, ny, radius, rect)) {//check if inside range
         moveBy(dx, dy);
         update();
     }
