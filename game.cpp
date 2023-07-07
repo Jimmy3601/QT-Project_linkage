@@ -2,6 +2,8 @@
 #include "game.h"
 #include <QTimer>
 #include <QPainter>
+#include <QLinearGradient>
+#include <QString>
 #include "config.h"
 #include "player.h"
 #include "bullet.h"
@@ -10,7 +12,7 @@
 
 //main part of the game
 /*NOTES:
- * - pos() represnets the coordinate of the top-left corner of a widget instead of centre, regardless of rotation.
+ * - pos() represnets the coordinate of the top-left corner of a widget instead of centre
  *
  *
  *
@@ -21,10 +23,17 @@
 QPixmap *player_1_pixmap, *player_2_pixmap;
 
 const double deceleration = 0.1;
-const int generate_prop_rate = 12000;
+
+const int generate_prop_rate = 1200;
+const QString buff_description[8] = {"", "Movement speed increased", "Bullet speed increased!", "Rotation speed increased", "Bullet damage increased"
+, "Shoot interval decreased", "Gain ability to teleport!", "Heal!"};
+
+Rect *dat[9];
 
 
-Game::Game(): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1)
+
+Game::Game(): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1), player1_can_tp(1), player2_can_tp(1), buff_p1(nullptr), buff_p2(nullptr),
+    skill1(nullptr),skill1b(nullptr), skill2(nullptr), skill2b(nullptr)
 {
 
 }
@@ -38,6 +47,7 @@ void Game::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_D:isPressingD = 1; break;
     case Qt::Key_E:isPressingE = 1; break;
     case Qt::Key_Q:isPressingQ = 1; break;
+    case Qt::Key_R:isPressingR = 1; break;
 
     case Qt::Key_Up:isPressingUp = 1; break;
     case Qt::Key_Left:isPressingLeft = 1;break;
@@ -45,6 +55,7 @@ void Game::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_Right:isPressingRight = 1;break;
     case Qt::Key_O:isPressingO = 1; break;
     case Qt::Key_P:isPressingP = 1; break;
+    case Qt::Key_I:isPressingI= 1; break;
     }
 }
 
@@ -58,6 +69,7 @@ void Game::keyReleaseEvent(QKeyEvent *event){
     case Qt::Key_D:isPressingD = 0;break;
     case Qt::Key_E:isPressingE = 0; break;
     case Qt::Key_Q:isPressingQ = 0; break;
+    case Qt::Key_R:isPressingR = 0; break;
 
     case Qt::Key_Up:isPressingUp = 0;break;
     case Qt::Key_Left:isPressingLeft = 0;break;
@@ -65,6 +77,7 @@ void Game::keyReleaseEvent(QKeyEvent *event){
     case Qt::Key_Right:isPressingRight = 0;break;
     case Qt::Key_O:isPressingO = 0; break;
     case Qt::Key_P:isPressingP = 0; break;
+    case Qt::Key_I:isPressingI = 0; break;
     }
 }
 
@@ -75,6 +88,7 @@ void Game::game_start() {
     isPressingS = false;
     isPressingE = false;
     isPressingQ = false;
+    isPressingR = false;
 
     isPressingUp = false;
     isPressingLeft = false;
@@ -82,6 +96,7 @@ void Game::game_start() {
     isPressingRight = false;
     isPressingO = false;
     isPressingP = false;
+    isPressingI = false;
 
     setSceneRect(0,0,MAX_SCREEN_WIDTH,MAX_SCREEN_HEIGHT);
     player_1_pixmap = new QPixmap(":/menu/res/qygh.png");
@@ -90,8 +105,8 @@ void Game::game_start() {
     const QPixmap *gh_pix = new QPixmap(":/menu/res/qygh.png");
     const QPixmap *yp_pix = new QPixmap(":/menu/res/qygh.png");
     const QPixmap *xy_pix = new QPixmap(":/menu/res/qygh.png");
-    player1 = new Xinya(MAX_SCREEN_WIDTH/4,MAX_SCREEN_HEIGHT/2,50, id_cnt++,cs_pix, this, 0);
-    player2 = new Guanghua(3*MAX_SCREEN_WIDTH/4,MAX_SCREEN_HEIGHT/2,50, id_cnt++,gh_pix, this,180);
+    player1 = new Yuanpei(150,465,50, id_cnt++,cs_pix, this, 0);
+    player2 = new Eecs(850,465,50, id_cnt++,gh_pix, this,180);
     existing_objects.append(player1);
     existing_objects.append(player2);
 
@@ -128,19 +143,68 @@ void Game::game_start() {
     this->addItem(item4);
 
 
-    int wallThickness = 10;
-    int wallLength = 150;
+    auto txt1 = new QGraphicsTextItem("Buff: ");
+    txt1->setDefaultTextColor(Qt::black);
+    QFont font("Calibri", 15, QFont::Bold, false);
+    txt1->setFont(font);
+    txt1->setPos(50, 95);
+    addItem(txt1);
+
+
+    auto txt2 = new QGraphicsTextItem("Buff: ");
+    txt2->setDefaultTextColor(Qt::black);
+    txt2->setFont(font);
+    txt2->setPos(600, 95); //take 50 of width
+    addItem(txt2);
+
+    QPen lp;
+    lp.setColor(Qt::black);
+    this->addLine(0,130,1000,130,lp);
+    skill1 = addRect(10, 90, 30, 30);
+    QBrush skill_brush;
+    skill_brush.setColor(Qt::lightGray);
+    skill_brush.setStyle(Qt::SolidPattern);
+    skill1->setBrush(skill_brush);
+
+    skill1b = addRect(10, 90, 30, 30);
+
+    QLinearGradient lg(QPointF(10,90), QPointF(40,120));
+    lg.setColorAt(0, Qt::red);
+    lg.setColorAt(0.4, 0xFFD700);
+    lg.setColorAt(0.6, 0xFFD700);
+    lg.setColorAt(1.0, Qt::blue);
+    //lg.setColorAt(1, 0xA4ABD6);
+    QBrush skill1b_brush(lg);
+    //skill1b_brush.setColor(0xFFD700);
+    //skill1b_brush.setColor(QColorConstants::Svg::aqua);
+    //skill1b_brush.setStyle(Qt::SolidPattern);
+    skill1b->setBrush(skill1b_brush);
+
+    skill2 = addRect(960, 90, 30, 30);
+    skill2->setBrush(skill_brush);
+
     //130 for status and tips
     QGraphicsRectItem *Wall1 = addRect(150, 250, wallLength, wallThickness);
     QGraphicsRectItem *Wall2 = addRect(150, 250, wallThickness, wallLength);
-    qDebug() << Wall2->pos();
-    QGraphicsRectItem *Wall5 = addRect(150, 680-wallThickness,wallLength ,wallThickness );
-    QGraphicsRectItem *Wall6 = addRect(150, 680-wallLength, wallThickness, wallLength);
-    QGraphicsRectItem *Wall3 = addRect(850-wallLength, 250,wallLength ,wallThickness );
-    QGraphicsRectItem *Wall4 = addRect(850-wallThickness,250, wallThickness, wallLength);
+    QGraphicsRectItem *Wall3 = addRect(150, 680-wallThickness,wallLength ,wallThickness );
+    QGraphicsRectItem *Wall4 = addRect(150, 680-wallLength, wallThickness, wallLength);
+    QGraphicsRectItem *Wall5 = addRect(850-wallLength, 250,wallLength ,wallThickness );
+    QGraphicsRectItem *Wall6 = addRect(850-wallThickness,250, wallThickness, wallLength);
     QGraphicsRectItem *Wall7 = addRect(850-wallLength, 680-wallThickness, wallLength, wallThickness);
     QGraphicsRectItem *Wall8 = addRect(850-wallThickness,680-wallLength, wallThickness,wallLength );
     QGraphicsRectItem *Wall9 = addRect(500-wallThickness/2, 390, wallThickness, wallLength);
+
+
+    dat[0] = new Rect(150, 250, 1);
+    dat[1] = new Rect(150, 250, 0);
+    dat[2] = new Rect(150, 680-wallThickness, 1);
+    dat[3] = new Rect(150, 680-wallLength, 0);
+    dat[4] = new Rect(850-wallLength, 250, 1);
+    dat[5] = new Rect(850-wallThickness, 250, 0);
+    dat[6] = new Rect(850-wallLength, 680-wallThickness, 1);
+    dat[7] = new Rect(850-wallThickness, 680-wallLength, 0);
+    dat[8] = new Rect(500-wallThickness/2, 390, 0);
+    judge_wall_collision(0,0,0, dat);
 
     //QGraphicsRectItem *Wall10 = scene->addRect(110, 38, wallLength, wallThickness);
 
@@ -157,7 +221,6 @@ void Game::game_start() {
     Wall7->setBrush(brush);
     Wall8->setBrush(brush);
     Wall9->setBrush(brush);
-    //Wall10->setBrush(brush);
 
     //血量条1
     // 创建一个表示总血量的矩形
@@ -269,6 +332,22 @@ void Game::game_update() {
         else existing_objects.append(new Bullet(nx, ny, player2->bullet_radius, id_cnt++, player_2_pixmap, this, player2->bullet_vmax, player2->angle, player2->bullet_damage, player2));
 
     }
+    //tp
+    if (player1->buff_id == 6 && isPressingR && player1_can_tp) {
+        player1->setPos(1000-player1->get_centre().rx()-player1->radius, player1->pos().ry());
+        player1_can_tp = 0;
+        tp_p1 = new QTimer;
+        tp_p1->start(player1->tp_interval);
+        connect(tp_p1,&QTimer::timeout,this, &Game::recover_tp_p1);
+    }
+
+    if (player2->buff_id == 6 && isPressingI && player2_can_tp) {
+        player2->setPos(1000-player2->get_centre().rx()-player2->radius, player2->pos().ry());
+        player2_can_tp = 0;
+        tp_p2 = new QTimer;
+        tp_p2->start(player2->tp_interval);
+        connect(tp_p2,&QTimer::timeout,this, &Game::recover_tp_p2);
+    }
     //qDebug() << player1->get_centre() << player2->get_centre();
 
     //try using skill: skill-realated paragraphs should be placed in front of on-hurt animation (due to opacity setting)
@@ -280,11 +359,78 @@ void Game::game_update() {
         player2->use_skill();
     }
 
+    if (player1->skill_duration != 0 && player1->skill_duration % 1000 == 0) {
+        double tmp = player1->skill_duration / 1000;
+        if (player1->is_using_skill) {
+            delete skill1b;
+            skill1b = addRect(10, 90 + 30/8.0*(8-tmp), 30, 30/8.0*tmp);
+            QBrush skill1b_brush;
+            skill1b_brush.setColor(0xFFD700);
+            skill1b_brush.setStyle(Qt::SolidPattern);
+            skill1b->setBrush(skill1b_brush);
+        }
+        else {
+            delete skill1b;
+            skill1b = addRect(10, 90 + 2*tmp, 30, 30-2*tmp);
+            QBrush skill1b_brush;
+            skill1b_brush.setColor(QColorConstants::Svg::aqua);
+            skill1b_brush.setStyle(Qt::SolidPattern);
+            skill1b->setBrush(skill1b_brush);
+        }
+    }
+
+    if (player2->skill_duration != 0 && player2->skill_duration % 1000 == 0) {
+        double tmp = player2->skill_duration / 1000;
+        if (player2->is_using_skill) {
+            delete skill2b;
+            skill2b = addRect(960, 90 + 30/8.0*(8-tmp), 30, 30/8.0*tmp);
+            QBrush skill2b_brush;
+            skill2b_brush.setColor(0xFFD700);
+            skill2b_brush.setStyle(Qt::SolidPattern);
+            skill2b->setBrush(skill2b_brush);
+        }
+        else {
+            delete skill2b;
+            skill2b = addRect(960, 90 + 2*tmp, 30, 30-2*tmp);
+            QBrush skill2b_brush;
+            skill2b_brush.setColor(QColorConstants::Svg::aqua);
+            skill2b_brush.setStyle(Qt::SolidPattern);
+            skill2b->setBrush(skill2b_brush);
+        }
+    }
+
     if (player1->skill_duration > 0) player1->skill_duration -= 20;
     if (player2->skill_duration > 0) player2->skill_duration -= 20;
 
-    if (player1->is_using_skill && player1->skill_duration==0) player1->skill_expired();
-    if (player2->is_using_skill && player2->skill_duration==0) player2->skill_expired();
+    if (player1->is_using_skill && player1->skill_duration==0) {
+        player1->skill_expired();
+        delete skill1b;
+        skill1b = nullptr;
+    }
+    if (!player1->is_using_skill && player1->skill_duration==0) {
+        delete skill1b;
+        skill1b = addRect(10, 90, 30, 30);
+        QBrush skill1b_brush;
+        skill1b_brush.setColor(0xFFD700);
+        skill1b_brush.setStyle(Qt::SolidPattern);
+        skill1b->setBrush(skill1b_brush);
+
+    }
+    if (player2->is_using_skill && player2->skill_duration==0) {
+        player2->skill_expired();
+        delete skill2b;
+        skill2b = nullptr;
+    }
+
+    if (!player2->is_using_skill && player2->skill_duration==0) {
+        delete skill2b;
+        skill2b = addRect(960, 90, 30, 30);
+        QBrush skill2b_brush;
+        skill2b_brush.setColor(0xFFD700);
+        skill2b_brush.setStyle(Qt::SolidPattern);
+        skill2b->setBrush(skill2b_brush);
+
+    }
 
     if (!isPressingW && !isPressingS) {
         player1->v = (player1->v>=0) ? max(0.0, player1->v-deceleration): min(0.0, player1->v+deceleration);  
@@ -292,8 +438,8 @@ void Game::game_update() {
     if (!isPressingUp && !isPressingDown) {
          player2->v = (player2->v>=0) ? max(0.0, player2->v-deceleration): min(0.0, player2->v+deceleration);
     }
-    player1->object_update(existing_objects);
-    player2->object_update(existing_objects);
+    player1->object_update(existing_objects,dat);
+    player2->object_update(existing_objects,dat);
 
     if (player1->is_hurt) {
          player1->is_hurt = 0;
@@ -309,17 +455,52 @@ void Game::game_update() {
          re_p2->start(150);
     }
 
+    if (player1->buff_id != 0 && player1->buff_duration % 1000 == 0) {
+         delete buff_p1;
+         QString tmp = buff_description[player1->buff_id];
+         tmp += "  ";
+         tmp += QString::number(player1->buff_duration / 1000, 10);
+         tmp += " s";
+         QFont font("Calibri", 15, QFont::Bold, false);
+         buff_p1 = new QGraphicsTextItem(tmp);
+         buff_p1->setPos(100, 95);
+         buff_p1->setFont(font);
+         buff_p1->setDefaultTextColor(Qt::black);
+         addItem(buff_p1);
+    }
+
     if (player1->buff_duration > 0) player1->buff_duration -=  20;
-    else player1->remove_buff();
+    else {
+         player1->remove_buff();
+         delete buff_p1;
+         buff_p1 = nullptr;
+    }
+
+    if (player2->buff_id != 0 && player2->buff_duration % 1000 == 0) {
+         delete buff_p2;
+         QString tmp = buff_description[player2->buff_id];
+         tmp += "  ";
+         tmp += QString::number(player2->buff_duration / 1000, 10);
+         tmp += " s";
+         QFont font("Calibri", 15, QFont::Bold, false);
+         buff_p2 = new QGraphicsTextItem(tmp);
+         buff_p2->setPos(650, 95);
+         buff_p2->setFont(font);
+         buff_p2->setDefaultTextColor(Qt::black);
+         addItem(buff_p2);
+    }
 
     if (player2->buff_duration > 0) player2->buff_duration -=  20;
-    else player2->remove_buff();
-
+    else {
+         player2->remove_buff();
+         delete buff_p2;
+         buff_p2 = nullptr;
+    }
 
     //update qvector
     for (int i = 2; i != existing_objects.size(); ++i) {
          auto p = existing_objects[i];
-         p->object_update(existing_objects);
+         p->object_update(existing_objects, dat);
          if (p->is_deleted) {
             existing_objects.removeAt(i);
             delete p;
@@ -338,9 +519,9 @@ void Game::game_update() {
 
     currentHealthBar2 = addRect(670, 35, 200-20*player2->health, 30);
     QBrush currentBrush2;
-    currentBrush.setColor(Qt::gray);
-    currentBrush.setStyle(Qt::SolidPattern);
-    currentHealthBar2->setBrush(currentBrush);
+    currentBrush2.setColor(Qt::gray);
+    currentBrush2.setStyle(Qt::SolidPattern);
+    currentHealthBar2->setBrush(currentBrush2);
 
     //check if game end
     if (player1->is_deleted) {
@@ -369,21 +550,34 @@ void Game::on_timer_p2() {
 }
 
 void Game::recover_opacity_p1() {
-    player1->setOpacity(1.0);
+    if (player1->faculty == 0 && player1->is_using_skill) player1->setOpacity(0.5);
+    else player1->setOpacity(1.0);
     re_p1->stop();
 }
 
 void Game::recover_opacity_p2() {
-    player2->setOpacity(1.0);
+    if (player2->faculty == 0 && player2->is_using_skill) player2->setOpacity(0.5);
+    else player2->setOpacity(1.0);
     re_p2->stop();
 }
 
+void Game::recover_tp_p1() {
+    player1_can_tp = 1;
+    tp_p1->stop();
+}
+
+void Game::recover_tp_p2() {
+    player2_can_tp = 1;
+    tp_p2->stop();
+}
+
 void Game::try_generate_prop() {
-    int x = 30 + ceil(rand()%940);
-    int y = 30 + ceil(rand()%740);
+    int x = 30 + ceil(rand()%910);
+    int y = 160 + ceil(rand()%600);
     if (existing_objects.size() < 5 && abs(player1->get_centre().rx()- x) > 100 && abs(player1->get_centre().ry()- y) > 90 && abs(player2->get_centre().rx()- x) > 100 && abs(player2->get_centre().ry()- y) > 90) {
-         existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 0));
-         qDebug() << x << ' ' <<y << "Prop generation succeed";
+         if (rand()%10<9)
+            existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 0));
+         else  existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 1));
          update();
     }
 
