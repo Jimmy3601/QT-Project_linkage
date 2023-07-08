@@ -26,7 +26,7 @@ void Bullet::object_update(QVector<Object*> & exo, Rect** rect) {
 void Bullet::player_collide(Player *target) {
     if (parent != target) {
         target->on_hurt(damage);
-        qDebug() << "shot!";
+        //qDebug() << "shot!";
         is_deleted = 1;
     }
 };

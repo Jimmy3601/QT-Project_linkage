@@ -70,7 +70,7 @@ Choose::Choose(QWidget *parent) :
         chosen2 = true;
         if(chosen1&&chosen2) showbutton();
         label[1] = 1;
-        qDebug()<<"点了！";
+        //qDebug()<<"点了！";
     });
 
     MyPushButton* yp1=new MyPushButton(this,true,":/menu/res/yp.png",":/res/ypback.png");
@@ -82,7 +82,7 @@ Choose::Choose(QWidget *parent) :
         chosen1 = true;
         if(chosen1&&chosen2) showbutton();
         label[0] = 2;
-        qDebug()<<"点了！";
+        //qDebug()<<"点了！";
     });
 
     MyPushButton* yp2=new MyPushButton(this,true,":/menu/res/yp.png",":/res/ypback.png");
@@ -143,7 +143,6 @@ void Choose::showbutton()
     startbutton->move(785,45);
     startbutton->show();
     connect(startbutton,&MyPushButton::clicked,this,[=](){
-        qDebug()<<"进入游戏！";
         qDebug()<<"label1="<<label[0]<<" label2="<<label[1];
         setWindowTitle("决一胜负！");
         QGraphicsScene *st = new QGraphicsScene(this);
@@ -167,7 +166,7 @@ void Choose::showbutton()
 
 
     });
-    qDebug()<<"show button";
+    //qDebug()<<"show button";
 }
 
 void Choose::game_end(int _flag) {
@@ -205,14 +204,14 @@ void Choose::game_end(int _flag) {
         auto a = new MainWindow(this);
         a->show();
 
-        qDebug()<<"点了backcd！";
+        //qDebug()<<"点了backcd！";
     });
 
     MyPushButton* saygoodbye = new MyPushButton(quitwindow,true,":/menu/res/saygoodbye.png",":/res/saygoodbye1.png");
     saygoodbye->move(305,330);
     connect(saygoodbye,&MyPushButton::clicked,this,[=](){
         delete this;
-        qDebug()<<"点了saygoodbye！";
+        //qDebug()<<"点了saygoodbye！";
     });
 
     quitwindow->show();

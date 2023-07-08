@@ -68,7 +68,7 @@ void Player::grant_buff(int _id, bool _is_rare) {
      * 1: gain 66%/150% extra movement speed
      * 2: gain 100%/400% extra bullet speed
      * 3: gain 100%/400% extra rotation speed
-     * 4: bullet deal 100%/300% extra damage
+     * 4: bullet deal 100%/400% extra damage
      * 5: shoot interval beecome 0.4/0.1 s
      * 6: tp
      * 7: instant effect: heal 1/4 health
@@ -126,10 +126,9 @@ void Eecs::on_hurt(int damage) {
         health -= (is_using_skill) ? 1 : damage;
         setOpacity(0.5);
         is_hurt = 1;
-        qDebug() << health;
         if (health <= 0) {
             health = 0; //added for ensuring health bar displaying correct
-            qDebug() << "player"<<id+1<< "died!";
+            //qDebug() << "player"<<id+1<< "died!";
             is_deleted = 1;
         }
     }

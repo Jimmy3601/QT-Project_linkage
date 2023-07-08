@@ -25,7 +25,7 @@
 
 const double deceleration = 0.1;
 
-const int generate_prop_rate = 10000;
+const int generate_prop_rate = 1200;
 const QString buff_description[8] = {"", "Movement speed increased", "Bullet speed increased!", "Rotation speed increased", "Bullet damage increased"
 , "Shoot interval decreased", "Gain ability to teleport!", "Heal!"};
 
@@ -301,7 +301,6 @@ void Game::game_update() {
     if (isPressingRight) player2->change_angle(-player2->angular_velocity);
 
     if (isPressingE && player1_can_shoot) {
-        qDebug() << player1->get_centre().rx() << player1->get_centre().ry();
         qreal dx = (player1->radius+12)*cos(player1->angle*3.1415/180), dy = -(player1->radius+12)*sin(player1->angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
         qreal nx = player1->get_centre().rx() + dx, ny = player1->get_centre().ry() + dy;
 
@@ -322,7 +321,7 @@ void Game::game_update() {
             qreal x2 = player2->get_centre().rx(), y2 = player2->get_centre().ry();
             if (1.1*player1->radius+1.1*player2->radius >=  sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))) {
                 player2->on_hurt(player1->bullet_damage);
-                int rn = rand() % 2;
+                int rn = rand() % 4;
                 if (rn && player1->health < 10) player1->health++;
             }
         }
@@ -331,7 +330,7 @@ void Game::game_update() {
     }
 
     if (isPressingO && player2_can_shoot) {
-        qDebug() << "Shooot!";
+        //qDebug() << "Shooot!";
         qreal dx = (player2->radius+12)*cos(player2->angle*3.1415/180), dy = -(player2->radius+12)*sin(player2->angle*3.1415/180); //dy is -ve cuz +y in qt is in downward direction
         qreal nx = player2->get_centre().rx() + dx, ny = player2->get_centre().ry() + dy;
 
