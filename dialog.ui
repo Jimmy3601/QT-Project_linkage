@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1001</width>
-    <height>601</height>
+    <width>1060</width>
+    <height>951</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,11 +16,17 @@
   <widget class="QPushButton" name="NextButton1">
    <property name="geometry">
     <rect>
-     <x>890</x>
-     <y>550</y>
+     <x>880</x>
+     <y>730</y>
      <width>101</width>
-     <height>41</height>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>101</width>
+     <height>16777215</height>
+    </size>
    </property>
    <property name="text">
     <string>下一页</string>

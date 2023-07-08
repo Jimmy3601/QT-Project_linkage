@@ -2,10 +2,41 @@
     <qresource prefix="/menu">
         <file>res/qygh.png</file>
         <file>res/bk.png</file>
+        <file>res/choose.png</file>
+        <file>res/xk.png</file>
+        <file>res/xy.png</file>
+        <file>res/yp.png</file>
+        <file>res/qygh2.png</file>
+        <file>res/saygoodbye.png</file>
+        <file>res/backcd.png</file>
+        <file>res/gh.png</file>
     </qresource>
     <qresource prefix="/">
         <file>res/intr1.png</file>
         <file>res/intr2.png</file>
         <file>res/intr3.png</file>
+        <file>res/bkmusic.mp3</file>
+        <file>res/xkback.png</file>
+        <file>res/qyghback.png</file>
+        <file>res/xyback.png</file>
+        <file>res/ypback.png</file>
+        <file>res/start.png</file>
+        <file>res/exit.png</file>
+        <file>res/introduction.png</file>
+        <file>res/startgame.png</file>
+        <file>res/BGM.png</file>
+        <file>res/BGM1.png</file>
+        <file>res/exit1.png</file>
+        <file>res/introduct1.png</file>
+        <file>res/startgame1.png</file>
+        <file>res/start1.png</file>
+        <file>res/over2.png</file>
+        <file>res/saygoodbye1.png</file>
+        <file>res/backcd1.png</file>
+        <file>res/over1.png</file>
+        <file>res/gh.png</file>
+        <file>res/prop1.png</file>
+        <file>res/prop2.png</file>
+        <file>res/vs.png</file>
     </qresource>
 </RCC>

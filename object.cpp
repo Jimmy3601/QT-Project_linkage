@@ -46,6 +46,7 @@ Object::Object(int x, int y, double sx, double sy, int vmx, int id_, const QPixm
     setPos(x-sx, y-sy); // setPos uses the coordinate of the top-left corner of the object
     scene = scene_;
     scene->addItem(this);
+    setTransformationMode(Qt::SmoothTransformation);
     //isDead = false;
 }
 

@@ -9,6 +9,7 @@
 #include "bullet.h"
 #include "prop.h"
 #include <cmath>
+#include "choose.h"
 
 //main part of the game
 /*NOTES:
@@ -20,11 +21,11 @@
  * */
 
 //QString IMG_SRC = ;
-QPixmap *player_1_pixmap, *player_2_pixmap;
+
 
 const double deceleration = 0.1;
 
-const int generate_prop_rate = 1200;
+const int generate_prop_rate = 10000;
 const QString buff_description[8] = {"", "Movement speed increased", "Bullet speed increased!", "Rotation speed increased", "Bullet damage increased"
 , "Shoot interval decreased", "Gain ability to teleport!", "Heal!"};
 
@@ -32,10 +33,37 @@ Rect *dat[9];
 
 
 
-Game::Game(): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1), player1_can_tp(1), player2_can_tp(1), buff_p1(nullptr), buff_p2(nullptr),
-    skill1(nullptr),skill1b(nullptr), skill2(nullptr), skill2b(nullptr)
+Game::Game(Choose *_p, int _fp1, int _fp2): id_cnt(0), player1_can_shoot(1), player2_can_shoot(1), player1_can_tp(1), player2_can_tp(1), buff_p1(nullptr), buff_p2(nullptr),
+    skill1(nullptr),skill1b(nullptr), skill2(nullptr), skill2b(nullptr), faculty_p1(_fp1), faculty_p2(_fp2), parent(_p)
+    ,on_cooldown_cnt_p1(0), on_cooldown_cnt_p2(0)
 {
 
+}
+
+
+Game::~Game(){
+    delete prop_1_pixmap;
+    delete prop_2_pixmap;
+    delete player_1_pixmap;
+    delete player_2_pixmap;
+    delete player1;
+    delete player2;
+    delete timer;
+    delete timer_p1;
+    delete timer_p2;
+    delete re_p1;
+    delete re_p2;
+    delete tp_p1;
+    delete tp_p2;
+    delete prop_timer;
+    delete buff_p1;
+    delete buff_p2;
+    delete currentHealthBar;
+    delete currentHealthBar2;
+    delete skill1;
+    delete skill1b;
+    delete skill2;
+    delete skill2b;
 }
 
 void Game::keyPressEvent(QKeyEvent *event) {
@@ -99,14 +127,27 @@ void Game::game_start() {
     isPressingI = false;
 
     setSceneRect(0,0,MAX_SCREEN_WIDTH,MAX_SCREEN_HEIGHT);
-    player_1_pixmap = new QPixmap(":/menu/res/qygh.png");
-    player_2_pixmap = new QPixmap(":/menu/res/qygh.png");
-    const QPixmap *cs_pix = new QPixmap(":/menu/res/qygh.png");
-    const QPixmap *gh_pix = new QPixmap(":/menu/res/qygh.png");
-    const QPixmap *yp_pix = new QPixmap(":/menu/res/qygh.png");
-    const QPixmap *xy_pix = new QPixmap(":/menu/res/qygh.png");
-    player1 = new Yuanpei(150,465,50, id_cnt++,cs_pix, this, 0);
-    player2 = new Eecs(850,465,50, id_cnt++,gh_pix, this,180);
+    const QPixmap *cs_pix = new QPixmap(":/menu/res/xk.png");
+    const QPixmap *gh_pix = new QPixmap(":/menu/res/gh.png");
+    const QPixmap *yp_pix = new QPixmap(":/menu/res/yp.png");
+    const QPixmap *xy_pix = new QPixmap(":/menu/res/xy.png");
+    prop_1_pixmap = new QPixmap(":/res/prop1.png");
+    prop_2_pixmap = new QPixmap(":/res/prop2.png");
+
+    switch(faculty_p1) {
+    case 0: player1 = new Eecs(150,465,50, id_cnt++,cs_pix, this, 0); player_1_pixmap = cs_pix; break;
+    case 1: player1 = new Guanghua(150,465,50, id_cnt++,gh_pix, this, 0); player_1_pixmap = gh_pix; break;
+    case 2: player1 = new Yuanpei(150,465,50, id_cnt++,yp_pix, this, 0); player_1_pixmap = yp_pix; break;
+    case 3: player1 = new Xinya(150,465,50, id_cnt++,xy_pix, this, 0); player_1_pixmap = xy_pix; break;
+    }
+
+    switch(faculty_p2) {
+    case 0: player2 = new Eecs(850,465,50, id_cnt++,cs_pix, this, 180); player_2_pixmap = cs_pix; break;
+    case 1: player2 = new Guanghua(850,465,50, id_cnt++,gh_pix, this, 180); player_2_pixmap = gh_pix; break;
+    case 2: player2 = new Yuanpei(850,465,50, id_cnt++,yp_pix, this, 180); player_2_pixmap = yp_pix; break;
+    case 3: player2 = new Xinya(850,465,50, id_cnt++,xy_pix, this, 180); player_2_pixmap = xy_pix; break;
+    }
+
     existing_objects.append(player1);
     existing_objects.append(player2);
 
@@ -118,28 +159,16 @@ void Game::game_start() {
     connect(prop_timer,&QTimer::timeout,this, &Game::try_generate_prop);
     prop_timer->start(generate_prop_rate);
 
-    QPixmap pixmap1(":/menu/res/qygh.png");
-    pixmap1 = pixmap1.scaled(100, 100, Qt::KeepAspectRatioByExpanding);
+    QPixmap pixmap1 = *player_1_pixmap ;
+    pixmap1 = pixmap1.scaled(90, 90, Qt::KeepAspectRatioByExpanding);
     QGraphicsPixmapItem *item1 = new QGraphicsPixmapItem(pixmap1);
-    item1->setPos(30,0);
+    item1->setPos(35,0);
     this->addItem(item1);
 
-    QPixmap pixmap2(":/menu/res/qygh.png");
-    pixmap2 = pixmap2.scaled(60, 15, Qt::KeepAspectRatioByExpanding);
-    QGraphicsPixmapItem *item2 = new QGraphicsPixmapItem(pixmap2);
-    item2->setPos(100,100);
-    //scene->addItem(item2);
-
-    QPixmap pixmap3(":/menu/res/qygh.png");
-    pixmap3 = pixmap3.scaled(100, 100, Qt::KeepAspectRatioByExpanding);
-    QGraphicsPixmapItem *item3 = new QGraphicsPixmapItem(pixmap1);
-    item3->setPos(880,0);
-    //scene->addItem(item3);
-
-    QPixmap pixmap4(":/menu/res/qygh.png");
-    pixmap4 = pixmap4.scaled(100, 100, Qt::KeepAspectRatioByExpanding);
+    QPixmap pixmap4 = *player_2_pixmap;
+    pixmap4 = pixmap4.scaled(90, 90, Qt::KeepAspectRatioByExpanding);
     QGraphicsPixmapItem *item4 = new QGraphicsPixmapItem(pixmap4);
-    item4->setPos(870,0);
+    item4->setPos(875,0);
     this->addItem(item4);
 
 
@@ -250,7 +279,7 @@ void Game::game_start() {
     currentBrush2.setStyle(Qt::SolidPattern);
     currentHealthBar2->setBrush(currentBrush2);
     //450 0
-    QPixmap pixmap6(":/vs.pic.jpg");
+    QPixmap pixmap6(":/res/vs.png");
     pixmap6 = pixmap6.scaled(100, 100, Qt::KeepAspectRatioByExpanding);
     QGraphicsPixmapItem *item6 = new QGraphicsPixmapItem(pixmap6);
     item6->setPos(450,0);
@@ -291,8 +320,7 @@ void Game::game_update() {
         else if (player1->is_using_skill && player1->faculty == 3) {
             qreal x1 = player1->get_centre().rx(), y1 = player1->get_centre().ry();
             qreal x2 = player2->get_centre().rx(), y2 = player2->get_centre().ry();
-            if (0.8*player1->radius+0.8*player2->radius >=  sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))) {
-                qDebug() << "attack";
+            if (1.1*player1->radius+1.1*player2->radius >=  sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))) {
                 player2->on_hurt(player1->bullet_damage);
                 int rn = rand() % 2;
                 if (rn && player1->health < 10) player1->health++;
@@ -323,10 +351,10 @@ void Game::game_update() {
         else if (player2->is_using_skill && player2->faculty == 3) {
             qreal x1 = player1->get_centre().rx(), y1 = player1->get_centre().ry();
             qreal x2 = player2->get_centre().rx(), y2 = player2->get_centre().ry();
-            if (0.8*player1->radius+0.8*player2->radius >=  sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))) {
+            if (1.1*player1->radius+1.1*player2->radius >=  sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))) {
                 player1->on_hurt(player2->bullet_damage);
-                int rn = rand() % 2;
-                if (rn && player2->health < 10) player2->health++;
+                int rn = rand() % 4;
+                if (rn==0 && player2->health < 10) player2->health++;
             }
         }
         else existing_objects.append(new Bullet(nx, ny, player2->bullet_radius, id_cnt++, player_2_pixmap, this, player2->bullet_vmax, player2->angle, player2->bullet_damage, player2));
@@ -353,10 +381,12 @@ void Game::game_update() {
     //try using skill: skill-realated paragraphs should be placed in front of on-hurt animation (due to opacity setting)
     if (isPressingQ && !player1->is_using_skill && player1->skill_duration == 0) {
         player1->use_skill();
+        on_cooldown_cnt_p1 = 0;
     }
 
     if (isPressingP && !player2->is_using_skill && player2->skill_duration == 0) {
         player2->use_skill();
+        on_cooldown_cnt_p2 = 0;
     }
 
     if (player1->skill_duration != 0 && player1->skill_duration % 1000 == 0) {
@@ -408,12 +438,25 @@ void Game::game_update() {
         skill1b = nullptr;
     }
     if (!player1->is_using_skill && player1->skill_duration==0) {
-        delete skill1b;
-        skill1b = addRect(10, 90, 30, 30);
-        QBrush skill1b_brush;
-        skill1b_brush.setColor(0xFFD700);
-        skill1b_brush.setStyle(Qt::SolidPattern);
-        skill1b->setBrush(skill1b_brush);
+        if (on_cooldown_cnt_p1 % 2000 == 0) {
+            delete skill1b;
+            skill1b = addRect(10, 90, 30, 30);
+            QBrush skill1b_brush;
+            skill1b_brush.setColor(0xFFD700);
+            skill1b_brush.setStyle(Qt::SolidPattern);
+            skill1b->setBrush(skill1b_brush);
+        }
+        on_cooldown_cnt_p1 += 20;
+        int tmp = on_cooldown_cnt_p1 % 2000 - 1500;
+        if (tmp >= 0 && tmp % 100 == 0) {
+            QLinearGradient lg1(QPointF(10,90), QPointF(40,120));
+            int of = (tmp/100);
+            lg1.setColorAt(0.1*of, 0xFFD700);
+            lg1.setColorAt(0.2+0.1*of, Qt::white);
+            lg1.setColorAt(0.4+0.1*of, 0xFFD700);
+            QBrush ani1(lg1);
+            skill1b->setBrush(ani1);
+        }
 
     }
     if (player2->is_using_skill && player2->skill_duration==0) {
@@ -423,12 +466,26 @@ void Game::game_update() {
     }
 
     if (!player2->is_using_skill && player2->skill_duration==0) {
-        delete skill2b;
-        skill2b = addRect(960, 90, 30, 30);
-        QBrush skill2b_brush;
-        skill2b_brush.setColor(0xFFD700);
-        skill2b_brush.setStyle(Qt::SolidPattern);
-        skill2b->setBrush(skill2b_brush);
+        if (on_cooldown_cnt_p2 % 2000 == 0) {
+            delete skill2b;
+            skill2b = addRect(960, 90, 30, 30);
+            QBrush skill2b_brush;
+            skill2b_brush.setColor(0xFFD700);
+            skill2b_brush.setStyle(Qt::SolidPattern);
+            skill2b->setBrush(skill2b_brush);
+        }
+        on_cooldown_cnt_p2 += 20;
+        int tmp = on_cooldown_cnt_p2 % 2000 - 1500;
+        if (tmp >= 0 && tmp % 100 == 0) {
+            QLinearGradient lg1(QPointF(960,90), QPointF(990,120));
+            int of = (tmp/100);
+            lg1.setColorAt(0.1*of, 0xFFD700);
+            lg1.setColorAt(0.2+0.1*of, Qt::white);
+            lg1.setColorAt(0.4+0.1*of, 0xFFD700);
+            QBrush ani1(lg1);
+            skill2b->setBrush(ani1);
+        }
+
 
     }
 
@@ -464,8 +521,9 @@ void Game::game_update() {
          QFont font("Calibri", 15, QFont::Bold, false);
          buff_p1 = new QGraphicsTextItem(tmp);
          buff_p1->setPos(100, 95);
-         buff_p1->setFont(font);
-         buff_p1->setDefaultTextColor(Qt::black);
+         buff_p1->setFont(font);        
+         if (player1->is_buff_rare) buff_p1->setDefaultTextColor(0xCFB53B);
+         else buff_p1->setDefaultTextColor(Qt::black);
          addItem(buff_p1);
     }
 
@@ -486,7 +544,8 @@ void Game::game_update() {
          buff_p2 = new QGraphicsTextItem(tmp);
          buff_p2->setPos(650, 95);
          buff_p2->setFont(font);
-         buff_p2->setDefaultTextColor(Qt::black);
+         if (player2->is_buff_rare) buff_p2->setDefaultTextColor(0xCFB53B);
+         else buff_p2->setDefaultTextColor(Qt::black);
          addItem(buff_p2);
     }
 
@@ -526,15 +585,18 @@ void Game::game_update() {
     //check if game end
     if (player1->is_deleted) {
          timer->stop();
-         if (player2->is_deleted) {
-             qDebug() << "Game Draw!";
-         }
-         else qDebug() << "Player 2 win!";
+         //if (player2->is_deleted) {
+          //   qDebug() << "Game Draw!";
+         //}
+         qDebug() << "Player 2 win!";
+         parent->game_end(1);
+
 
     }
     else if (player2->is_deleted) {
          timer->stop();
          qDebug() << "Player 1 win!";
+         parent->game_end(0);
     }
 
 }
@@ -576,14 +638,11 @@ void Game::try_generate_prop() {
     int y = 160 + ceil(rand()%600);
     if (existing_objects.size() < 5 && abs(player1->get_centre().rx()- x) > 100 && abs(player1->get_centre().ry()- y) > 90 && abs(player2->get_centre().rx()- x) > 100 && abs(player2->get_centre().ry()- y) > 90) {
          if (rand()%10<9)
-            existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 0));
-         else  existing_objects.append(new Prop(x, y, 20, id_cnt++, player_1_pixmap, this, 1));
+            existing_objects.append(new Prop(x, y, 20, id_cnt++, prop_1_pixmap, this, 0));
+         else  existing_objects.append(new Prop(x, y, 20, id_cnt++, prop_2_pixmap, this, 1));
          update();
     }
 
 }
 
-void Game::try_trigger_event() {
-
-}
 

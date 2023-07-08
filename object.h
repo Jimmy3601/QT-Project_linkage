@@ -13,7 +13,7 @@ using namespace std;
 
 const int wallThickness = 10;
 const int wallLength = 150;
-const double PIX_MULTIPLIER = 0.8;
+const double PIX_MULTIPLIER = 1.0;
 
 struct Rect{
     int x, y; //top-left corner

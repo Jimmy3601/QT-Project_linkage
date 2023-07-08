@@ -4,9 +4,7 @@
 #include "config.h"
 
 Dialog::Dialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::Dialog),
-    cnt(0){
+    QDialog(parent),ui(new Ui::Dialog),cnt(0){
     ui->setupUi(this);
 
     setWindowIcon(QIcon(":/menu/res/qygh.png"));
@@ -24,6 +22,7 @@ Dialog::~Dialog()
 void Dialog::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform); // 设置抗锯齿和平滑绘图
     bg[cnt]=bg[cnt].scaled(size(),Qt::KeepAspectRatioByExpanding);
     painter.drawImage(0,0,bg[cnt]);
 }

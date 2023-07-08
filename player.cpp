@@ -27,7 +27,7 @@ void Player::object_update(QList<Object*> & exo, Rect** rect) {
         if (other!=this) {
             if (other->is_circle) {
                 qreal x2 = other->get_centre().rx(), y2 = other->get_centre().ry();
-                if (0.8*this->radius+0.8*other->radius >=  sqrt((nx-x2)*(nx-x2)+(ny-y2)*(ny-y2))) {
+                if (this->radius+other->radius >=  sqrt((nx-x2)*(nx-x2)+(ny-y2)*(ny-y2))) {
                     collision = 1;
                     other->player_collide(this);
                 }
@@ -80,7 +80,7 @@ void Player::grant_buff(int _id, bool _is_rare) {
     case 4: bullet_damage *= multiplier; break;
     case 5: (shoot_interval *= (6-multiplier)) /= 10; break;
     case 6: if (is_buff_rare) tp_interval = 200; break;
-    case 7: buff_id = 0, buff_duration = 0, is_buff_rare = 0, health = min(health-1+multiplier, health_max); break;
+    case 7: buff_duration = 1000, health = min(health-1+multiplier, health_max); break;
     }
 }
 

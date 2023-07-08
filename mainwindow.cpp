@@ -1,100 +1,78 @@
-
+#include "mypushbutton.h"
 #include "mainwindow.h"
+//#include <windows.h>
+//#include <mmsystem.h>
 #include "./ui_mainwindow.h"
 #include "config.h"
-#include "game.h"
-
-QString IMG_SRC = ":/menu/res/qygh.png";
+#include <QDir>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),cntBGM(0)
 {
     ui->setupUi(this);
+    /*QString path = QDir(":").absolutePath();
+    std::cout << path.toStdString() << std::endl;
+    wchar_t a[256];
+    ("open" + path).toWCharArray(a);
+    wchar_t b[256];
+    ("play" + path).toWCharArray(b);*/
 
-    setWindowIcon(QIcon(":/menu/res/qygh.png"));
+    setWindowIcon(QIcon(":/menu/res/gh.png"));
     setFixedSize(MAX_SCREEN_WIDTH,MAX_SCREEN_HEIGHT);
     setWindowTitle("谁是人上人？");
 
+    MyPushButton* quit_button = new MyPushButton(this,true,":/res/exit.png",":/res/exit1.png");
+    quit_button->move(100,490);
+    connect(quit_button,&MyPushButton::clicked,this,[=](){
+        qDebug()<<"点了退出！";
+        delete this;
+    });
 
-    //QPixmap test =QPixmap(":/menu/res/qygh.png");
+    MyPushButton* start_button = new MyPushButton(this,true,":/res/startgame.png",":/res/startgame1.png");
+    start_button->move(150,270);
+    connect(start_button,&MyPushButton::clicked,this,[=](){
+        qDebug()<<"点了开始！";
+        this->close();
+        auto b = new Choose(this);
+        b->show();
+    });
 
+    MyPushButton* intro_button = new MyPushButton(this,true,":/res/introduction.png",":/res/introduct1.png");
+    intro_button->move(200,380);
+    connect(intro_button,&MyPushButton::clicked,this,[=](){
+        auto a = new Dialog(this);
 
-    //v->setBackgroundBrush(test);
-    //QGraphicsPixmapItem *qg = new QGraphicsPixmapItem(test);
-    //qg->setPixmap(test);
+        a->show();
+    });
 
-    //qg->setFlag(QGraphicsItem::ItemIsMovable, true);
-    //st->addItem(qg);
-    //qg->update();
-    //qg->moveBy(100,100);
-    //qg->setRotation(180);
+    /*MyPushButton* BGM = new MyPushButton(this,true,":/res/BGM.png",":/res/BGM1.png");
+    BGM->move(900,700);
+    connect(BGM,&MyPushButton::clicked,this,[=](){
+        cntBGM++;
+        if(cntBGM%2==1){
+            mciSendString(L"open C:\\Users\\lml\\Documents\\GitHub\\QT-Project\\res\\bkmusic.mp3",0,0,0);
+            mciSendString(L"play C:\\Users\\lml\\Documents\\GitHub\\QT-Project\\res\\bkmusic.mp3",0,0,0);
+        }
+        else {
+            mciSendString(L"close C:\\Users\\lml\\Documents\\GitHub\\QT-Project\\res\\bkmusic.mp3",0,0,0);
+        }//绝对路径，间接不行，需要修改
+    });*/
+}
 
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform); // 设置抗锯齿和平滑绘图
 
-    //设置退出弹框+按钮
-    //connect(ui->menu,&Mymenu::readyforquit,[=](){
-    /*ShapedWindow* quitwindow=new ShapedWindow(this,":/menu/res/QuitWindow.png");
-        quitwindow->move((this->width()-quitwindow->width())*0.5,(this->height()-quitwindow->height())*0.5);
+    QImage bg(":/menu/res/bk.png");
+    bg = bg.scaled(size(), Qt::KeepAspectRatioByExpanding);
+    painter.drawImage(0, 0, bg);
 
-        MyPushButton* quit=new MyPushButton(quitw  indow,true,":/menu/res/QuitButton.png");
-        connect(quit,&MyPushButton::clicked,[=](){
-            this->close();
-        });
-        quit->move(40,210);
-
-
-        MyPushButton* cancel=new MyPushButton(quitwindow,true,":/menu/res/CancelButton.png");
-        connect(cancel,&MyPushButton::clicked,[=](){
-            delete quitwindow;
-        });
-        cancel->move(270,210);
-        quitwindow->show();*/
-    //});
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-
-void MainWindow::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    QImage bg(":/menu/res/bk.png");
-    bg=bg.scaled(size(),Qt::KeepAspectRatioByExpanding);
-    painter.drawImage(0,0,bg);
-}
-
-void MainWindow::on_QuitButton_clicked()
-{
-    delete this;
-}
-
-
-void MainWindow::on_IntroButton_clicked()
-{
-    auto a = new Dialog(this);
-    a->show();
-
-}
-
-
-void MainWindow::on_Start_game_clicked()
-{
-    QGraphicsScene *st = new QGraphicsScene(this);
-    Game *game_scene = new Game;
-    st->setSceneRect(0, 0, 1000, 800);
-    st->setItemIndexMethod(QGraphicsScene::NoIndex);
-    QGraphicsView *v = new QGraphicsView(game_scene, this);
-    v->setParent(this);
-
-    v->setGeometry(0,0 , 1000 , 800);
-    v->setFixedSize(1000,800);
-    v->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    v->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOff);
-    //test = test.scaled(100,100);
-    v->show();
-    game_scene->game_start();
-    //v->hide();
 }

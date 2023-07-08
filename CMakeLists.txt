@@ -17,20 +17,26 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        mymenu.cpp
-        mymenu.h
+        mypushbutton.cpp
+        mypushbutton.h
         qygh.qrc
         game.h
         game.cpp
         config.h
         object.h
         object.cpp
+        dialog.h
+        dialog.cpp
+        dialog.ui
+        choose.h
+        choose.cpp
+        choose.ui
+        shapedwindow.cpp
+        shapedwindow.h
         bullet.h
         bullet.cpp
         player.h
         player.cpp
-        dialog.h
-        dialog.cpp
         prop.h
         prop.cpp
 )
@@ -59,6 +65,8 @@ else()
 endif()
 
 target_link_libraries(QT-HW PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(QT-HW PRIVATE winmm.lib)
+
 
 set_target_properties(QT-HW PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -69,9 +77,10 @@ set_target_properties(QT-HW PROPERTIES
 )
 
 install(TARGETS QT-HW
-    BUNDLE DESTINATION .
+    BUNDLE DESTINATION
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(QT-HW)
 endif()
+
